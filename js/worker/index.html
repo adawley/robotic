@@ -2,16 +2,22 @@
 <html>
     <head>
         <title>worker test</title>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="/robotic/js/worker/worker.css" />
     </head>
 
     <body>
-        <div>
+        <div id="content">
             <p>Count numbers: <output id="worker_count"></output></p>
             <button onclick="workers.add()">Add Worker</button> 
-            <button onclick="workers.remove()">Stop Worker</button>
+            <button onclick="workers.start();">start</button>
+            <button onclick="workers.remove()">Kill Workers</button>
             <button onclick="alert(workers.count());">show count</button>
             <button onclick="workers.names();">show names</button>
             <button onclick="workers.weights();">show weights</button>
+            
+            <button onclick="workers.stop();">stop</button>
+
             <br /><br />
 
             <script>
@@ -28,20 +34,33 @@
                 
                 /*
                  * Worker object prototypes
-                 */
-                 
+                 */                 
                 Worker.prototype.init = function(name, weight){
                     // set the message listener
                     this.onmessage = function (event) {
-                        document.getElementById("result").innerHTML+=event.data+'<br>';
+                        var data = event.data;
+                        switch (data.cmd) {
+                            case 'dead':
+                                $('#'+name).remove();
+                                break;
+                            default:
+                                $('#'+name).html(name+': '+event.data);
+                                
+                        }
+                        
                     };
                     this.name(name);
                     this.weight(weight);
                 }
-                
+                Worker.prototype.kill = function(){
+                    this.postMessage({'cmd':'kill'});
+                }
                 Worker.prototype.name = function(name){
                     name = (typeof(name) === "undefined") ? '' : name;
                     this.postMessage({'cmd':'name','msg': name});
+                }
+                Worker.prototype.start = function(){
+                    this.postMessage({'cmd':'start'});
                 }
                 Worker.prototype.stop = function(){
                     this.postMessage({'cmd':'stop'});
@@ -49,6 +68,9 @@
                 Worker.prototype.weight = function(weight){
                     weight = (typeof(weight) === "undefined") ? '' : weight;
                     this.postMessage({'cmd':'weight','msg': weight});
+                }
+                Worker.prototype.wire = function(worker){
+                    this.postMessage({'cmd':'wire','msg':worker});
                 }
                 
                 /*
@@ -80,14 +102,17 @@
                 workers.add = function(){
                     var w=new Worker("worker.js");
                     
+                    var name = new Date().getTime();
                     var weight=Math.floor(Math.random()*11)+1;
-                    w.init(new Date().getTime(), weight);
+                    w.init(name, weight);
                    
                     // add it to the stack
                     workers.cata.push(w);
                     
                     // trigger a count update
                     workers.count();
+                    
+                    $('#content div:last').after("<div class='workerWindow' id='"+name+"'>new div: "+name+"</div>");
                     
                     return w;
                 }
@@ -113,8 +138,26 @@
                         workers.cata.splice(workers.cata.indexOf(worker),1);
                     }
                     
-                    worker.stop();
+                    worker.kill();
                     workers.count();
+                }
+                
+                /*
+                 * Starts the worker.
+                 */
+                workers.start = function(){
+                    workers.cata.map(function(w){
+                        w.start(); 
+                    });
+                }
+                
+                /*
+                 * Stops the worker.
+                 */
+                workers.stop = function(){
+                    workers.cata.map(function(w){
+                        w.stop(); 
+                    });
                 }
                 
                 /*
@@ -129,10 +172,11 @@
 
 
             </script>
+            <div id="result"></div>
 
         </div>
         <button onclick="document.getElementById('result').innerHTML='';">clear buffer</button><br>
-        <output id="result" style="width: 80em;border: 1px solid black"></output>
+
     </body>
 </html>
 
