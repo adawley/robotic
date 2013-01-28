@@ -36,13 +36,15 @@ workers.add = function(){
                     
     // trigger a count update
     workers.count();
-                    
-    $('div#workers div#fst').clone().attr('id',name).find('div').each(function(){
-        if($(this).attr('class') == 'workerName'){
-            $(this).html(name);
-        }
-    }).end().appendTo('div#workers');
-                       
+    
+    // create a worker window and append it to the workers div
+    var div = "<div class='workerWindow' id='"+name+"'>\n"
+        + "<div class='workerName'>"+name+"</div>\n"
+        + "<div class='workerMsg'></div>\n"
+        + "</div>\n";    
+    $(div).appendTo('div#workers');
+    
+    // return the newly created worker?  
     return w;
 }
                 
