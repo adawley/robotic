@@ -38,8 +38,10 @@ workers.add = function(){
     workers.count();
     
     // create a worker window and append it to the workers div
-    var div = "<div class='workerWindow' id='"+name+"'>\n"
+    var div = "<div class='workerWindow' id='"+name+"' draggable='true' ondrop='drop(event)' ondragover='allowDrop(event)' ondragstart='drag(event)' >\n"
         + "<div class='workerName'>"+name+"</div>\n"
+        + "<div class='workerWeight'>"+weight+"</div>\n"
+        + "<div class='workerWires'></div>\n"
         + "<div class='workerMsg'></div>\n"
         + "</div>\n";    
     $(div).appendTo('div#workers');
@@ -47,7 +49,17 @@ workers.add = function(){
     // return the newly created worker?  
     return w;
 }
-                
+
+workers.find = function(id){
+    var i = 0;
+    
+    for(;i<workers.cata.length;i++){
+        if(workers.cata[i].NAME == id){
+            alert(id);
+        }
+    }
+}
+
 /*
 * Gets the names of the current workers.
 */

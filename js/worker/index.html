@@ -6,7 +6,27 @@
         <script src="workers.js"></script>
         <script src="proto/Worker.js"></script>
         <script src="proto/Array.js"></script>
-        <link rel="stylesheet" type="text/css" href="/robotic/js/worker/worker.css" />
+        <link rel="stylesheet" type="text/css" href="worker.css" />
+        <script>
+            function allowDrop(ev)
+            {
+                ev.preventDefault();
+            }
+
+            function drag(ev)
+            {
+                ev.dataTransfer.setData("Text",ev.target.id);
+                alert(ev.target.id);
+            }
+
+            function drop(ev)
+            {
+                ev.preventDefault();
+                var data=ev.dataTransfer.getData("Text");
+                ev.target.appendChild(document.getElementById(data));
+                alert(ev.target.id);
+            }
+        </script>
     </head>
 
     <body>
@@ -18,6 +38,8 @@
             <button onclick="workers.names();">show names</button>
             <button onclick="workers.weights();">show weights</button>
             <button onclick="workers.stop();">stop</button>
+            <input type="text" id="findWorker" value=""/>
+            <button onclick="workers.find($('#findWorker').val());">find</button>
             <br /><br />
         </div>
         <div id="workers"></div>

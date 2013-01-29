@@ -1,6 +1,8 @@
 /*
  * Worker object prototypes
- */                 
+ */
+Worker.prototype.NAME = '';
+Worker.prototype.WEIGHT = -1;
 Worker.prototype.init = function(name, weight){
     // set the message listener
     this.onmessage = function (event) {
@@ -9,14 +11,17 @@ Worker.prototype.init = function(name, weight){
             case 'dead':
                 $('#'+name).remove();
                 break;
+            case 'wired':
+                $('#'+name+' #workerWires').append(data.msg);
+                break;
             default:
-                $('#'+name+' div.workerMsg').html(event.data);
-                                
-        }
-                        
+                $('#'+name+' div.workerMsg').html(event.data);                                
+        }                        
     };
     this.name(name);
+    this.NAME = name;
     this.weight(weight);
+    this.WEIGHT = weight;
 }
 Worker.prototype.kill = function(){
     this.postMessage({

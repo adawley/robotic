@@ -3,7 +3,6 @@ var name = '';
 var weight = 0;
 var wires = new Array();
 var started = false;
-var xmlhttp = new XMLHttpRequest();
 
 self.addEventListener('message', function(e) {
     var data = e.data;
@@ -20,6 +19,11 @@ self.addEventListener('message', function(e) {
             } else {
                 name = data.msg;
             }			
+            break;
+        case 'signal':
+            wires.map(function(w){
+                w.name();
+            });
             break;
         case 'start':
             if(!started){
@@ -38,8 +42,12 @@ self.addEventListener('message', function(e) {
             }
             break;
         case 'wire':
+            // add node to wires array
             wires.push(data.msg);
-            self.postMessage(wires);
+            self.postMessage({
+                'cmd': 'wired',
+                'msg': data.msg.NAME
+            });
             break;
         default:
             self.postMessage('Unknown command: ' + data.msg);
@@ -48,30 +56,8 @@ self.addEventListener('message', function(e) {
 
 function timedCount(){
     i=i+1;
-    
-    ajax("http://www.google.com/finance/info?infotype=infoquoteall&q=GOOG&callback=?",function(data){
-        self.postMessage(i+' - '+data);
-        if(started){
-            setTimeout("timedCount()",10000);
-        }
-    });   
-    
-    
-}
-
-
-function ajax(url, callback){
-    
-    xmlhttp.onreadystatechange=function()
-    {
-        postMessage(xmlhttp.readyState+':'+xmlhttp.status);
-        if (xmlhttp.readyState==4)
-        {
-            postMessage('ajax4');
-            callback(xmlhttp.responseText);
-        }
+    self.postMessage(i);
+    if(started){
+        setTimeout('timedCount()', weight*100);
     }
-    xmlhttp.open("GET",url,true);
-    xmlhttp.send();
-    
 }
